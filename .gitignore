@@ -1,0 +1,8 @@
+# Compiled binaries
+sharednotebook
+
+# Build cache
+.gocache/
+
+# Runtime artifacts
+server.log

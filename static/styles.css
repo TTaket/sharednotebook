@@ -1,0 +1,179 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7fb;
+  --card-bg: #ffffff;
+  --text: #222;
+  --text-muted: #606770;
+  --accent: #0066ff;
+  --accent-dark: #0050c9;
+  --danger: #c62828;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+header h1 {
+  margin: 0 0 12px;
+  font-size: 2.2rem;
+}
+
+.tagline {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  padding: 24px;
+  margin-bottom: 28px;
+}
+
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+}
+
+form label {
+  display: block;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+input,
+select {
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #d9deeb;
+  background: #fdfdff;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--accent);
+  border-color: transparent;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: var(--accent-dark);
+}
+
+#note-area {
+  width: 100%;
+  min-height: 320px;
+  border-radius: 16px;
+  border: 1px solid #d9deeb;
+  padding: 16px;
+  font-size: 1rem;
+  line-height: 1.6;
+  resize: vertical;
+  box-sizing: border-box;
+  background: #fefefe;
+}
+
+.editor-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.status {
+  font-weight: 600;
+}
+
+.status.connected {
+  color: #2e7d32;
+}
+
+.status.disconnected {
+  color: var(--danger);
+}
+
+.hidden {
+  display: none;
+}
+
+.help-text {
+  margin-top: 16px;
+  color: var(--text-muted);
+}
+
+.error {
+  color: var(--danger);
+  margin-top: 12px;
+  min-height: 1.2em;
+}
+
+.notice {
+  margin-top: 16px;
+  color: var(--text-muted);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101522;
+    --card-bg: #161d2b;
+    --text: #ecf2ff;
+    --text-muted: #9aa8be;
+    --accent: #4d8dff;
+    --accent-dark: #3a6dd9;
+    --danger: #ef5350;
+  }
+
+  input,
+  select,
+  textarea {
+    border-color: #2a3348;
+    background: #101522;
+    color: var(--text);
+  }
+
+  button {
+    color: #fff;
+  }
+
+  #note-area {
+    background: #101522;
+  }
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>共享记事本</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>共享记事本</h1>
+      <p class="tagline">通过房间 ID 和密码共享同一份笔记，支持永久与倒计时模式。</p>
+    </header>
+
+    <section class="card" id="join-card">
+      <h2>加入或创建房间</h2>
+      <form id="join-form">
+        <label>
+          房间 ID
+          <input type="text" id="room-id" placeholder="例如 notes-2024" required>
+        </label>
+
+        <label>
+          房间密码
+          <input type="password" id="room-password" placeholder="设置或输入房间密码" required>
+        </label>
+
+        <label>
+          房间模式
+          <select id="room-mode">
+            <option value="permanent" selected>永久保存</option>
+            <option value="countdown">倒计时销毁</option>
+          </select>
+        </label>
+
+        <label id="duration-wrapper" class="hidden">
+          倒计时（分钟）
+          <input type="number" id="room-duration" min="1" max="1440" value="10">
+        </label>
+
+        <button type="submit">进入房间</button>
+      </form>
+      <p class="help-text">提示：如果房间不存在，第一位进入者将创建房间并锁定密码。</p>
+      <p class="error" id="join-error"></p>
+    </section>
+
+    <section class="card hidden" id="editor-card">
+      <div class="editor-header">
+        <div>
+          <strong>房间：</strong><span id="current-room">-</span>
+        </div>
+        <div id="mode-info"></div>
+        <div class="status" id="connection-status"></div>
+      </div>
+      <textarea id="note-area" placeholder="开始书写，所有成员即时同步…" disabled></textarea>
+      <div class="notice" id="room-notice"></div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
