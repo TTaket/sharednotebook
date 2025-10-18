@@ -43,20 +43,31 @@ type Room struct {
 	mu      sync.RWMutex
 	content string
 	clients map[*Client]struct{}
+	cursors map[string]CursorState
 }
 
 type RoomSnapshot struct {
 	Content   string
 	Mode      RoomMode
 	ExpiresAt time.Time
+	Cursors   map[string]CursorState
 }
 
 type OutgoingMessage struct {
-	Type      string   `json:"type"`
-	Content   string   `json:"content,omitempty"`
-	Mode      RoomMode `json:"mode,omitempty"`
-	ExpiresAt string   `json:"expiresAt,omitempty"`
-	Reason    string   `json:"reason,omitempty"`
+	Type        string                 `json:"type"`
+	Content     string                 `json:"content,omitempty"`
+	Mode        RoomMode               `json:"mode,omitempty"`
+	ExpiresAt   string                 `json:"expiresAt,omitempty"`
+	Reason      string                 `json:"reason,omitempty"`
+	ClientID    string                 `json:"clientId,omitempty"`
+	CursorStart int                    `json:"cursorStart,omitempty"`
+	CursorEnd   int                    `json:"cursorEnd,omitempty"`
+	Cursors     map[string]CursorState `json:"cursors,omitempty"`
+}
+
+type CursorState struct {
+	Start int `json:"start"`
+	End   int `json:"end"`
 }
 
 func NewRoom(id, password string, mode RoomMode, duration time.Duration) *Room {
@@ -65,6 +76,7 @@ func NewRoom(id, password string, mode RoomMode, duration time.Duration) *Room {
 		password: password,
 		mode:     mode,
 		clients:  make(map[*Client]struct{}),
+		cursors:  make(map[string]CursorState),
 	}
 	if mode == ModeCountdown {
 		room.expiresAt = time.Now().Add(duration)
@@ -79,6 +91,7 @@ func (r *Room) Snapshot() RoomSnapshot {
 		Content:   r.content,
 		Mode:      r.mode,
 		ExpiresAt: r.expiresAt,
+		Cursors:   r.copyCursorsLocked(),
 	}
 }
 
@@ -86,11 +99,11 @@ func (r *Room) CheckPassword(password string) bool {
 	return r.password == password
 }
 
-func (r *Room) UpdateContent(content string) {
+func (r *Room) UpdateContent(clientID, content string) {
 	r.mu.Lock()
 	r.content = content
 	r.mu.Unlock()
-	r.broadcast(OutgoingMessage{Type: "content", Content: content})
+	r.broadcast(OutgoingMessage{Type: "content", Content: content, ClientID: clientID})
 }
 
 func (r *Room) AddClient(client *Client) {
@@ -106,7 +119,18 @@ func (r *Room) AddClient(client *Client) {
 func (r *Room) RemoveClient(client *Client) {
 	r.mu.Lock()
 	delete(r.clients, client)
+	if client.id != "" {
+		delete(r.cursors, client.id)
+	}
 	r.mu.Unlock()
+	if client.id != "" {
+		r.broadcast(OutgoingMessage{
+			Type:        "cursor",
+			ClientID:    client.id,
+			CursorStart: -1,
+			CursorEnd:   -1,
+		})
+	}
 }
 
 func (r *Room) broadcast(msg OutgoingMessage) {
@@ -258,6 +282,7 @@ func snapshotMessage(snapshot RoomSnapshot) []byte {
 		Type:    "room_state",
 		Content: snapshot.Content,
 		Mode:    snapshot.Mode,
+		Cursors: snapshot.Cursors,
 	}
 	if !snapshot.ExpiresAt.IsZero() {
 		msg.ExpiresAt = snapshot.ExpiresAt.Format(time.RFC3339)
@@ -268,4 +293,38 @@ func snapshotMessage(snapshot RoomSnapshot) []byte {
 		return nil
 	}
 	return data
+}
+
+func (r *Room) UpdateCursor(clientID string, start, end int) {
+	if clientID == "" {
+		return
+	}
+	if start < 0 {
+		start = 0
+	}
+	if end < 0 {
+		end = start
+	}
+
+	r.mu.Lock()
+	r.cursors[clientID] = CursorState{Start: start, End: end}
+	r.mu.Unlock()
+
+	r.broadcast(OutgoingMessage{
+		Type:        "cursor",
+		ClientID:    clientID,
+		CursorStart: start,
+		CursorEnd:   end,
+	})
+}
+
+func (r *Room) copyCursorsLocked() map[string]CursorState {
+	if len(r.cursors) == 0 {
+		return nil
+	}
+	copied := make(map[string]CursorState, len(r.cursors))
+	for id, cur := range r.cursors {
+		copied[id] = cur
+	}
+	return copied
 }

@@ -94,6 +94,10 @@ button:hover {
   background: var(--accent-dark);
 }
 
+.editor-area {
+  position: relative;
+}
+
 #note-area {
   width: 100%;
   min-height: 320px;
@@ -105,6 +109,46 @@ button:hover {
   resize: vertical;
   box-sizing: border-box;
   background: #fefefe;
+}
+
+.cursor-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.remote-caret {
+  position: absolute;
+  width: 2px;
+  background: var(--accent);
+  height: 1.6em;
+  transform: translate(-1px, 0);
+  animation: caret-blink 1.1s steps(2, start) infinite;
+}
+
+.remote-caret .remote-label {
+  position: absolute;
+  top: -1.2em;
+  left: 0;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.caret-mirror {
+  position: absolute;
+  visibility: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  top: 0;
+  left: 0;
+  pointer-events: none;
 }
 
 .editor-header {
@@ -175,5 +219,16 @@ button:hover {
 
   #note-area {
     background: #101522;
+  }
+}
+
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
   }
 }

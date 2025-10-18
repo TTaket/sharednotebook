@@ -53,7 +53,11 @@
         <div id="mode-info"></div>
         <div class="status" id="connection-status"></div>
       </div>
-      <textarea id="note-area" placeholder="开始书写，所有成员即时同步…" disabled></textarea>
+      <div class="editor-area" id="editor-area">
+        <textarea id="note-area" placeholder="开始书写，所有成员即时同步…" disabled></textarea>
+        <div id="cursor-overlay" class="cursor-overlay"></div>
+        <div id="caret-mirror" class="caret-mirror" aria-hidden="true"></div>
+      </div>
       <div class="notice" id="room-notice"></div>
     </section>
   </div>

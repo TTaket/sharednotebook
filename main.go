@@ -44,11 +44,12 @@ type joinRequest struct {
 }
 
 type joinResponse struct {
-	RoomID    string `json:"roomId"`
-	Mode      string `json:"mode"`
-	ExpiresAt string `json:"expiresAt,omitempty"`
-	Content   string `json:"content"`
-	Created   bool   `json:"created"`
+	RoomID    string                 `json:"roomId"`
+	Mode      string                 `json:"mode"`
+	ExpiresAt string                 `json:"expiresAt,omitempty"`
+	Content   string                 `json:"content"`
+	Created   bool                   `json:"created"`
+	Cursors   map[string]CursorState `json:"cursors,omitempty"`
 }
 
 func handleJoinRoom(manager *RoomManager, w http.ResponseWriter, r *http.Request) {
@@ -93,6 +94,7 @@ func handleJoinRoom(manager *RoomManager, w http.ResponseWriter, r *http.Request
 		Mode:    string(snapshot.Mode),
 		Content: snapshot.Content,
 		Created: created,
+		Cursors: snapshot.Cursors,
 	}
 	if !snapshot.ExpiresAt.IsZero() {
 		resp.ExpiresAt = snapshot.ExpiresAt.Format(time.RFC3339)

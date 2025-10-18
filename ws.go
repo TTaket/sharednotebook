@@ -1,9 +1,13 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -18,6 +22,7 @@ var upgrader = websocket.Upgrader{
 func (m *RoomManager) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	roomID := strings.TrimSpace(r.URL.Query().Get("roomId"))
 	password := strings.TrimSpace(r.URL.Query().Get("password"))
+	clientID := strings.TrimSpace(r.URL.Query().Get("clientId"))
 
 	if roomID == "" {
 		http.Error(w, "roomId is required", http.StatusBadRequest)
@@ -41,7 +46,19 @@ func (m *RoomManager) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := NewClient(room, conn)
+	if clientID == "" {
+		clientID = generateClientID()
+	}
+
+	client := NewClient(room, clientID, conn)
 	room.AddClient(client)
 	client.start()
+}
+
+func generateClientID() string {
+	buf := make([]byte, 8)
+	if _, err := rand.Read(buf); err != nil {
+		return strconv.FormatInt(time.Now().UnixNano(), 16)
+	}
+	return hex.EncodeToString(buf)
 }

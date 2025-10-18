@@ -15,6 +15,7 @@ const (
 )
 
 type Client struct {
+	id        string
 	room      *Room
 	conn      *websocket.Conn
 	send      chan []byte
@@ -22,12 +23,15 @@ type Client struct {
 }
 
 type inboundMessage struct {
-	Type    string `json:"type"`
-	Content string `json:"content"`
+	Type        string `json:"type"`
+	Content     string `json:"content"`
+	CursorStart int    `json:"cursorStart"`
+	CursorEnd   int    `json:"cursorEnd"`
 }
 
-func NewClient(room *Room, conn *websocket.Conn) *Client {
+func NewClient(room *Room, id string, conn *websocket.Conn) *Client {
 	return &Client{
+		id:   id,
 		room: room,
 		conn: conn,
 		send: make(chan []byte, 16),
@@ -60,8 +64,10 @@ func (c *Client) readPump() {
 		}
 
 		switch msg.Type {
+		case "cursor":
+			c.room.UpdateCursor(c.id, msg.CursorStart, msg.CursorEnd)
 		case "content":
-			c.room.UpdateContent(msg.Content)
+			c.room.UpdateContent(c.id, msg.Content)
 		default:
 			// ignore unknown message types
 		}
